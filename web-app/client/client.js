@@ -138,36 +138,32 @@ const onTextSelect = () => {
 // WEATHER
 //
 const getWeather = (location, apikey, cb) => {
-		// get coords
 		log(`Getting weather for ${location} using api key ${apikey}`);
+
 		fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apikey}&units=metric`)
 				.then(response => response.json())
 				.then(data => {
-						if (!data.coord) 		log(`ERROR weather api: ${JSON.stringify(data)}`);
-						
-						const lat = data.coord.lat
-						const lon = data.coord.lon
-						log(`got weather coords from ${location} : ${lat} ${lon}`)
-						// get full data
-						fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${apikey}&units=metric`)
-								.then(response => response.json())
-								.then(data => {
-										if (!data.daily) 		log(`ERROR weather api: ${JSON.stringify(data)}`);
-										let res = []
-										for(let i = 0; i < data.daily.length; i++) {
-												const d = data.daily[i]
-												console.log(d);
-												const temp = Math.round(d.temp.day)
-												const weatherCode = getWeatherCode(d.weather[0].icon)
-												const day = new Date(d.dt * 1000).getDate()
-												// give the timestamp at 0am, not 13am
-												const timestamp = (d.dt*1000)  - (1000*60*60*13) 
-												const month = new Date(d.dt * 1000).getMonth() + 1
-												res.push([temp, weatherCode, timestamp])
-										}
-										log(`got weather conditions ${JSON.stringify(res)}`)
-										cb(res);
-								});
+						if (!data.coord || !data.main || !data.weather) {
+								log(`ERROR weather api: ${JSON.stringify(data)}`);
+								return;
+						}
+
+						const temp = Math.round(data.main.temp);
+						const weatherCode = getWeatherCode(data.weather[0].icon);
+
+						const now = new Date();
+						const timestamp = new Date(
+								now.getFullYear(),
+								now.getMonth(),
+								now.getDate()
+						).getTime();
+
+						const res = [
+								[temp, weatherCode, timestamp]
+						];
+
+						log(`got weather conditions ${JSON.stringify(res)}`);
+						cb(res);
 				});
 }
 
