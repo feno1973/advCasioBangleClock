@@ -158,8 +158,15 @@ const getWeather = (location, apikey, cb) => {
 								now.getDate()
 						).getTime();
 
+						const oneDay = 1000 * 60 * 60 * 24;
+
 						const res = [
-								[temp, weatherCode, timestamp]
+						
+								[temp, weatherCode, timestamp],
+								[temp, weatherCode, timestamp + oneDay],
+								[temp, weatherCode, timestamp + oneDay * 2],
+								[temp, weatherCode, timestamp + oneDay * 3]
+						
 						];
 
 						log(`got weather conditions ${JSON.stringify(res)}`);
